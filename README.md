@@ -5,7 +5,11 @@ Enactus (formerly known as Students in Free Enterprise or SIFE) is an internatio
 Enactus operates in universities around the world, where student teams work on projects that aim to tackle social, economic, and environmental challenges. These projects can range from improving access to clean water and energy to enhancing education and creating employment opportunities.
 
 Key Aspects of Enactus:
+
 Social Impact: Projects focus on creating positive and sustainable change in communities.
+
 Entrepreneurship: Enactus encourages an entrepreneurial mindset to solve real-world issues.
+
 Collaboration: It fosters collaboration between students, universities, and corporate partners.
+
 Competitions: Enactus teams often compete in regional and global competitions to showcase their projects and win support
