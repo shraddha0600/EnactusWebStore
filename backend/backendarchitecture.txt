@@ -1,0 +1,96 @@
+1. Server Initialization (server.js):
+Server Setup: The server is initialized using Express (app.js). It listens on a specific port defined in environment variables.
+Error Handling: It manages system-wide errors such as uncaught exceptions (e.g., incorrect variable usage) and unhandled promise rejections (e.g., database connection failure). In such cases, the server shuts down gracefully.
+Cloudinary Configuration: Cloudinary is set up here for handling image uploads (used for product images and user avatars).
+2. Express App Setup (app.js):
+Middleware Setup:
+express.json(): Parses incoming requests with JSON payloads.
+cookieParser(): Parses cookies (e.g., for managing authentication tokens).
+bodyParser: Parses URL-encoded data (used for handling form submissions).
+fileUpload(): Handles file uploads, crucial for managing images.
+Route Imports: Routes are imported for different functionalities such as products, users, orders, and payments.
+Serving Frontend: In production, it serves the static React files (the frontend) from the build folder, ensuring a seamless full-stack application.
+3. Database (database.js):
+The MongoDB database connection is established using Mongoose, ensuring proper interaction between the application and the database. This connection allows reading/writing of data such as users, products, and orders.
+4. Authentication and Authorization:
+Handled through JWT (JSON Web Tokens) in auth.js middleware:
+
+isAuthenticatedUser Middleware:
+Ensures users are authenticated by checking for a valid JWT in cookies.
+The JWT is verified using jsonwebtoken. If valid, the user details are attached to the request object.
+authorizeRoles Middleware:
+Restricts certain routes to specific user roles (e.g., only admins can access some actions).
+This checks the user’s role before allowing access to restricted resources.
+5. Controllers:
+A. User Controller (userController.js):
+User Registration: Registers a new user by hashing the password using bcrypt and saving the user data in MongoDB.
+Login: On successful login, a JWT is generated and stored in cookies for session management.
+Forgot and Reset Password: If a user forgets their password, a reset token is generated and emailed. This token, when validated, allows the user to reset their password.
+User Profile: Authenticated users can update their profile and password.
+Admin Functionality: Admins can fetch all users, update roles, and delete users.
+B. Product Controller (productController.js):
+Get All Products: Fetches all products from the database with optional filters (e.g., category, price range) and pagination.
+Product Management (Admin): Admins can create, update, and delete products. The images for products are uploaded to Cloudinary, and URLs are saved in the MongoDB.
+Product Reviews: Users can post, update, or delete reviews for products. These reviews include ratings and comments, which influence the product’s overall rating.
+C. Order Controller (orderController.js):
+Order Creation: After a user selects products, they can create an order, which stores:
+Shipping information (address, phone, etc.).
+List of ordered items (with details like product ID, quantity, and price).
+Payment info (captured using Stripe).
+The total price (including taxes and shipping).
+Order Management:
+Users can view their own orders.
+Admins can view all orders and update the order status (e.g., from "Processing" to "Shipped").
+Admins can also delete orders if necessary.
+D. Payment Controller (paymentController.js):
+Stripe Integration: Handles payments using Stripe. It generates a payment intent on the backend that the frontend can use to process payments securely.
+Send Stripe API Key: Sends the public API key for Stripe to the frontend for initiating the payment process.
+6. Models:
+A. User Model (userModel.js):
+Defines the structure of user data (name, email, password, role, avatar, etc.).
+Passwords are encrypted using bcrypt. JWT tokens are generated and verified for authentication.
+Includes methods for password comparison and generating reset tokens (used in the forgot-password functionality).
+B. Product Model (productModel.js):
+Stores product details such as name, description, price, images, and stock.
+Stores an array of reviews, including the user who posted the review, their rating, and comment.
+The product schema also maintains the product’s rating, which is calculated based on the reviews.
+C. Order Model (orderModel.js):
+Stores the details of an order, including the user who placed the order, the list of ordered items, shipping information, payment info, and the status of the order.
+The order schema is critical for tracking the entire order lifecycle, from creation to delivery.
+7. Routes:
+Each route corresponds to a controller and serves as the entry point for various API requests.
+
+A. User Routes (userRoute.js):
+Handles user registration, login, password resets, profile updates, and admin functionalities.
+B. Product Routes (productRoute.js):
+Allows fetching of products and managing products (for admins).
+Handles product reviews, letting users post reviews and admins manage them.
+C. Order Routes (orderRoute.js):
+Provides endpoints for users to create and manage their orders.
+Admins can view, update, and delete orders.
+D. Payment Routes (paymentRoute.js):
+Processes payments and sends the Stripe API key to the frontend.
+8. Middleware:
+A. Error Handling (error.js):
+This middleware catches errors from any controller and formats a response with appropriate status codes and messages.
+Handles specific cases such as invalid MongoDB IDs, duplicate database entries, and invalid JWT tokens.
+B. catchAsyncErrors:
+A utility function to catch errors in asynchronous operations (e.g., database calls) and pass them to the error-handling middleware, ensuring clean error management.
+9. Utilities:
+A. JWT Token Management:
+Tokens are used to authenticate users. They are signed with a secret and an expiration time (configured in the environment variables).
+Tokens are stored in cookies and are sent with every request to validate the user’s identity.
+B. Cloudinary Integration:
+Cloudinary is used for image uploads and management. When a product or user avatar is uploaded, it’s sent to Cloudinary, and the response contains a URL, which is stored in the database.
+10. Frontend Interaction:
+The backend API serves requests from the frontend React app:
+
+When a user interacts with the store (e.g., browsing products, adding to cart, checking out), the frontend sends requests to the corresponding routes (via Axios or Fetch).
+The backend validates the request, performs database operations, processes payments, and returns appropriate responses (success messages, product data, error messages, etc.).
+11. Security:
+JWT Tokens: Authentication and authorization are handled using JWT tokens, ensuring only authorized users can access certain routes.
+Password Encryption: User passwords are encrypted using bcrypt to protect sensitive data.
+CORS: Cross-Origin Resource Sharing (CORS) ensures that only requests from allowed domains can interact with the API.
+12. Error Management:
+Unhandled exceptions are captured and logged to avoid crashes.
+Invalid data (e.g., malformed MongoDB IDs, incorrect payment info) triggers appropriate error messages, helping users and developers understand issues.
